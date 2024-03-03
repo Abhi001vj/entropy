@@ -1,0 +1,523 @@
+{
+    "36": {
+      "inputs": {
+        "conditioning": [
+          "83",
+          0
+        ]
+      },
+      "class_type": "StableCascade_StageB_Conditioning",
+      "_meta": {
+        "title": "StableCascade_StageB_Conditioning"
+      }
+    },
+    "40": {
+      "inputs": {},
+      "class_type": "ConditioningZeroOut",
+      "_meta": {
+        "title": "ConditioningZeroOut"
+      }
+    },
+    "41": {
+      "inputs": {
+        "ckpt_name": "epicrealism_naturalSinRC1VAE.safetensors"
+      },
+      "class_type": "CheckpointLoaderSimple",
+      "_meta": {
+        "title": "Load Checkpoint"
+      }
+    },
+    "43": {
+      "inputs": {
+        "text": "detailed face,natural skin, woman, beautyfull, joyful expression, ",
+        "clip": [
+          "143",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "face_detailer"
+      }
+    },
+    "44": {
+      "inputs": {
+        "text": "",
+        "clip": [
+          "143",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "face_detailer"
+      }
+    },
+    "45": {
+      "inputs": {
+        "model_name": "bbox/face_yolov8m.pt"
+      },
+      "class_type": "UltralyticsDetectorProvider",
+      "_meta": {
+        "title": "UltralyticsDetectorProvider"
+      }
+    },
+    "46": {
+      "inputs": {
+        "model_name": "sam_vit_b_01ec64.pth",
+        "device_mode": "AUTO"
+      },
+      "class_type": "SAMLoader",
+      "_meta": {
+        "title": "SAMLoader (Impact)"
+      }
+    },
+    "48": {
+      "inputs": {
+        "image_a": [
+          "228",
+          5
+        ],
+        "image_b": [
+          "106",
+          0
+        ]
+      },
+      "class_type": "Image Comparer (rgthree)",
+      "_meta": {
+        "title": "Image Comparer (rgthree)"
+      }
+    },
+    "83": {
+      "inputs": {},
+      "class_type": "ConditioningZeroOut",
+      "_meta": {
+        "title": "ConditioningZeroOut"
+      }
+    },
+    "92": {
+      "inputs": {
+        "vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "Load VAE"
+      }
+    },
+    "96": {
+      "inputs": {
+        "bbox_threshold": 0.5,
+        "bbox_dilation": 0,
+        "crop_factor": 3,
+        "drop_size": 50,
+        "sub_threshold": 0.5,
+        "sub_dilation": 0,
+        "sub_bbox_expansion": 0,
+        "sam_mask_hint_threshold": 0.7,
+        "post_dilation": 0,
+        "bbox_detector": [
+          "45",
+          0
+        ],
+        "image": [
+          "228",
+          5
+        ],
+        "sam_model_opt": [
+          "46",
+          0
+        ]
+      },
+      "class_type": "ImpactSimpleDetectorSEGS",
+      "_meta": {
+        "title": "Simple Detector (SEGS)"
+      }
+    },
+    "103": {
+      "inputs": {
+        "target": "x1",
+        "order": false,
+        "take_start": 0,
+        "take_count": 1,
+        "segs": [
+          "96",
+          0
+        ]
+      },
+      "class_type": "ImpactSEGSOrderedFilter",
+      "_meta": {
+        "title": "SEGS Filter (ordered)"
+      }
+    },
+    "106": {
+      "inputs": {
+        "guide_size": 512,
+        "guide_size_for": true,
+        "max_size": 1024,
+        "seed": 1125899906842624,
+        "steps": 20,
+        "cfg": 3.5,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 0.2,
+        "feather": 5,
+        "noise_mask": true,
+        "force_inpaint": true,
+        "wildcard": "",
+        "cycle": 1,
+        "inpaint_model": false,
+        "noise_mask_feather": 0,
+        "image": [
+          "228",
+          5
+        ],
+        "segs": [
+          "103",
+          0
+        ],
+        "model": [
+          "143",
+          0
+        ],
+        "clip": [
+          "143",
+          1
+        ],
+        "vae": [
+          "92",
+          0
+        ],
+        "positive": [
+          "43",
+          0
+        ],
+        "negative": [
+          "44",
+          0
+        ]
+      },
+      "class_type": "DetailerForEach",
+      "_meta": {
+        "title": "Detailer (SEGS)"
+      }
+    },
+    "113": {
+      "inputs": {
+        "model_name": "bbox/Eyeful_v1.pt"
+      },
+      "class_type": "UltralyticsDetectorProvider",
+      "_meta": {
+        "title": "UltralyticsDetectorProvider"
+      }
+    },
+    "114": {
+      "inputs": {
+        "segs": [
+          "103",
+          0
+        ]
+      },
+      "class_type": "SegsToCombinedMask",
+      "_meta": {
+        "title": "SEGS to MASK (combined)"
+      }
+    },
+    "115": {
+      "inputs": {
+        "mask": [
+          "114",
+          0
+        ]
+      },
+      "class_type": "MaskPreview+",
+      "_meta": {
+        "title": "🔧 Mask Preview"
+      }
+    },
+    "138": {
+      "inputs": {
+        "filename_prefix": "ComfyUI",
+        "images": [
+          "106",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "Save Image"
+      }
+    },
+    "143": {
+      "inputs": {
+        "lora_name": "more_details.safetensors",
+        "strength_model": 1,
+        "strength_clip": 1,
+        "model": [
+          "41",
+          0
+        ],
+        "clip": [
+          "41",
+          1
+        ]
+      },
+      "class_type": "LoraLoader",
+      "_meta": {
+        "title": "Load LoRA"
+      }
+    },
+    "157": {
+      "inputs": {
+        "segs": [
+          "96",
+          0
+        ]
+      },
+      "class_type": "SegsToCombinedMask",
+      "_meta": {
+        "title": "SEGS to MASK (combined)"
+      }
+    },
+    "158": {
+      "inputs": {
+        "mask": [
+          "157",
+          0
+        ]
+      },
+      "class_type": "MaskPreview+",
+      "_meta": {
+        "title": "🔧 Mask Preview"
+      }
+    },
+    "201": {
+      "inputs": {
+        "width": 1024,
+        "height": 1024,
+        "aspect_ratio": "custom",
+        "swap_dimensions": "Off",
+        "upscale_factor": 1,
+        "batch_size": 1
+      },
+      "class_type": "CR SDXL Aspect Ratio",
+      "_meta": {
+        "title": "🔳 CR SDXL Aspect Ratio"
+      }
+    },
+    "223": {
+      "inputs": {
+        "text": "a photo of 3lsaj3an, blonde woman, in a sexy schoolgirl outfit, best quality, detailed skin"
+      },
+      "class_type": "Text _O",
+      "_meta": {
+        "title": "Text _O"
+      }
+    },
+    "224": {
+      "inputs": {
+        "text": "asian,worst quality, 3D, cgi, (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, out of the frame, ((fire)), nsfw, nude, naked"
+      },
+      "class_type": "Text _O",
+      "_meta": {
+        "title": "Text _O"
+      }
+    },
+    "228": {
+      "inputs": {
+        "seed": 767233026995954,
+        "steps": 30,
+        "cfg": 3,
+        "sampler_name": "dpmpp_sde",
+        "scheduler": "karras",
+        "denoise": 1,
+        "preview_method": "auto",
+        "vae_decode": "true",
+        "model": [
+          "243",
+          0
+        ],
+        "positive": [
+          "238",
+          0
+        ],
+        "negative": [
+          "239",
+          0
+        ],
+        "latent_image": [
+          "201",
+          4
+        ],
+        "optional_vae": [
+          "242",
+          0
+        ]
+      },
+      "class_type": "KSampler (Efficient)",
+      "_meta": {
+        "title": "KSampler (Efficient)"
+      }
+    },
+    "230": {
+      "inputs": {
+        "scale": 0.5,
+        "blur_sigma": 2,
+        "model": [
+          "235",
+          0
+        ]
+      },
+      "class_type": "SelfAttentionGuidance",
+      "_meta": {
+        "title": "Self-Attention Guidance"
+      }
+    },
+    "233": {
+      "inputs": {
+        "ckpt_name": "juggernautXL_v7Rundiffusion.safetensors"
+      },
+      "class_type": "CheckpointLoaderSimple",
+      "_meta": {
+        "title": "Load Checkpoint"
+      }
+    },
+    "235": {
+      "inputs": {
+        "model": [
+          "233",
+          0
+        ],
+        "clip": [
+          "240",
+          0
+        ],
+        "lora_stack": [
+          "237",
+          0
+        ]
+      },
+      "class_type": "CR Apply LoRA Stack",
+      "_meta": {
+        "title": "Stage_1"
+      }
+    },
+    "237": {
+      "inputs": {
+        "switch_1": "On",
+        "lora_name_1": "elsajean_SDXL.safetensors",
+        "model_weight_1": 0.85,
+        "clip_weight_1": 1,
+        "switch_2": "Off",
+        "lora_name_2": "None",
+        "model_weight_2": 1,
+        "clip_weight_2": 1,
+        "switch_3": "Off",
+        "lora_name_3": "None",
+        "model_weight_3": 1,
+        "clip_weight_3": 1
+      },
+      "class_type": "CR LoRA Stack",
+      "_meta": {
+        "title": "💊 CR LoRA Stack"
+      }
+    },
+    "238": {
+      "inputs": {
+        "width": [
+          "201",
+          0
+        ],
+        "height": [
+          "201",
+          1
+        ],
+        "crop_w": 0,
+        "crop_h": 0,
+        "target_width": 4096,
+        "target_height": 4096,
+        "text_g": [
+          "223",
+          0
+        ],
+        "text_l": [
+          "223",
+          0
+        ],
+        "clip": [
+          "235",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncodeSDXL",
+      "_meta": {
+        "title": "CLIPTextEncodeSDXL"
+      }
+    },
+    "239": {
+      "inputs": {
+        "width": [
+          "201",
+          0
+        ],
+        "height": [
+          "201",
+          1
+        ],
+        "crop_w": 0,
+        "crop_h": 0,
+        "target_width": 4096,
+        "target_height": 4096,
+        "text_g": [
+          "224",
+          0
+        ],
+        "text_l": [
+          "224",
+          0
+        ],
+        "clip": [
+          "235",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncodeSDXL",
+      "_meta": {
+        "title": "CLIPTextEncodeSDXL"
+      }
+    },
+    "240": {
+      "inputs": {
+        "stop_at_clip_layer": -2,
+        "clip": [
+          "233",
+          1
+        ]
+      },
+      "class_type": "CLIPSetLastLayer",
+      "_meta": {
+        "title": "CLIP Set Last Layer"
+      }
+    },
+    "242": {
+      "inputs": {
+        "vae_name": "sdxl_vae.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "Load VAE"
+      }
+    },
+    "243": {
+      "inputs": {
+        "ratio": 0.3,
+        "model": [
+          "230",
+          0
+        ]
+      },
+      "class_type": "TomePatchModel",
+      "_meta": {
+        "title": "TomePatchModel"
+      }
+    }
+  }

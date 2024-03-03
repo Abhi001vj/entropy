@@ -77,7 +77,7 @@ class Predictor(BasePredictor):
     #         f"Total time taken to download models: {end_time - start_time} seconds")
 
     def download_model(self, model_type, model_name):
-        base_url = "https://huggingface.co/bryantanjw/entropy-lol/resolve/main/models"
+        base_url = "https://huggingface.co/Abhilashvj/entropy-lora/resolve/main/models"
         print(f"Now downloading {model_type} model: {model_name}")
         path = f"ComfyUI/models/{model_type}/{os.path.basename(model_name)}"
         if not os.path.exists(path):
@@ -148,11 +148,11 @@ class Predictor(BasePredictor):
 
     def predict(
         self,
-        checkpoint_model: str = Input(
-            description="Checkpoint Model",
-            choices=checkpoints,
-            default="Aniverse.safetensors"
-        ),
+        # checkpoint_model: str = Input(
+        #     description="Checkpoint Model",
+        #     choices=checkpoints,
+        #     default="Aniverse.safetensors"
+        # ),
         input_prompt: str = Input(
             description="Prompt"
         ),
@@ -182,7 +182,7 @@ class Predictor(BasePredictor):
         lora: str = Input(
             description="LoRA Model",
             choices=loras,
-            default="gaming/Ahri.safetensors"
+            default="elsajean_SDXL.safetensors"
         ),
         custom_lora: str = Input(
             description="Link to LoRA file (.safetensors). Replicate doesn't allow .safetensors file uploads :(, but you can upload it on app.entropy.so.",
@@ -222,94 +222,38 @@ class Predictor(BasePredictor):
 
         # Download only the required models at runtime
         self.download_model("checkpoints", checkpoint_model)
+        self.download_model("checkpoints", "epicrealism_naturalSinRC1VAE.safetensors")
+        self.download_model("checkpoints", "juggernautXL_v7Rundiffusion.safetensors")
+
         self.download_model("loras", lora)
+        self.download_model("loras", "more_details.safetensors")
+
+        
 
         # queue prompt
         img_output_path = self.get_workflow_output(
-            checkpoint_model=checkpoint_model,
             input_prompt=input_prompt,
             negative_prompt=negative_prompt,
-            lora=lora,
-            steps=steps,
-            sampler_name=sampler_name,
-            seed=seed,
-            cfg=cfg,
-            width=width,
-            height=height,
-            batch_size=batch_size,
-            lora_strength=lora_strength,
-            custom_lora=custom_lora,
-            upscale_factor=upscale_factor
         )
         return img_output_path
 
     def get_workflow_output(
         self,
-        checkpoint_model,
         input_prompt, negative_prompt,
-        lora,
-        steps,
-        sampler_name,
-        seed,
-        batch_size,
-        width,
-        height,
-        cfg,
-        lora_strength,
-        custom_lora,
-        upscale_factor
     ):
         # load config
         prompt = None
-        workflow_config = "./workflows/entropy_v2.json"
+        workflow_config = "./workflows/ai-gf.json"
         with open(workflow_config, 'r') as file:
             prompt = json.load(file)
 
         if not prompt:
             raise Exception('no workflow config found')
 
-        # If custom_lora is provided, save it to the desired directory
-        lora_to_use = lora
-        lora_path = None
-        if custom_lora is not None and custom_lora != "":
-            lora_directory = "ComfyUI/models/loras"
-            # Parse the filename from the presigned URL
-            parsed_url = urlparse(custom_lora)
-            path = parsed_url.path
+        
+        prompt["223"]["inputs"]["text"] = input_prompt
+        prompt["224"]["inputs"]["text"] = negative_prompt
 
-            # Extract the filename from the path
-            # Ensure to decode any percent-encoded characters
-            filename = unquote(os.path.basename(path))
-
-            # Construct the full path where the file will be saved
-            lora_path = os.path.join(lora_directory, filename)
-            print(f"Full path for saving file: {lora_path}")
-
-            # Download the file
-            response = requests.get(custom_lora)
-            if response.status_code == 200:
-                with open(lora_path, 'wb') as f:
-                    f.write(response.content)
-                print(f"File downloaded and saved successfully at {lora_path}")
-                lora_to_use = lora_path
-            else:
-                raise Exception(
-                    f"Failed to download LoRA file. Status code: {response.status_code}")
-
-        # set input variables
-        prompt["93:0"]["inputs"]["ckpt_name"] = checkpoint_model
-        prompt["93:3"]["inputs"]["text"] = input_prompt
-        prompt["93:4"]["inputs"]["text"] = negative_prompt
-        prompt["93:2"]["inputs"]["lora_name"] = os.path.basename(lora_to_use)
-        prompt["50"]["inputs"]["seed"] = seed
-        prompt["50"]["inputs"]["steps"] = steps
-        prompt["50"]["inputs"]["cfg"] = cfg
-        prompt["50"]["inputs"]["sampler_name"] = sampler_name
-        prompt["5"]["inputs"]["batch_size"] = batch_size
-        prompt["5"]["inputs"]["width"] = width
-        prompt["5"]["inputs"]["height"] = height
-        prompt["93:2"]["inputs"]["strength_model"] = lora_strength
-        prompt["41"]["inputs"]["upscale_factor"] = upscale_factor
 
         # start the process
         client_id = str(uuid.uuid4())
@@ -320,15 +264,7 @@ class Predictor(BasePredictor):
         images = self.get_images(ws, prompt, client_id)
         print(f"{len(images)} images generated successfully")
 
-        # Delete the custom_lora file after generating images
-        if custom_lora:
-            try:
-                os.remove(lora_path)
-                print(
-                    f"Custom LoRA file {lora_path} deleted after generating images.")
-            except OSError as e:
-                print(f"Error: {e.strerror} - {e.filename}")
-
+        
         image_paths = []
         for node_id in images:
             for image_data in images[node_id]:
